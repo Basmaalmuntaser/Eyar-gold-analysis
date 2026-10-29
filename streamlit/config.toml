@@ -1,0 +1,21 @@
+[theme]
+base = "light"
+primaryColor = "#8A641D"
+backgroundColor = "#F7F4EE"
+secondaryBackgroundColor = "#FFFFFF"
+textColor = "#202A26"
+borderColor = "#E7E0D3"
+showWidgetBorder = true
+baseRadius = "0.75rem"
+linkColor = "#8A641D"
+font = "Tajawal:https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap"
+headingFont = "Tajawal:https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800&display=swap"
+
+[theme.sidebar]
+backgroundColor = "#FFFFFF"
+
+[client]
+toolbarMode = "minimal"
+
+[server]
+headless = true
