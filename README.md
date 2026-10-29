@@ -160,7 +160,7 @@ The original README describes tests for price conversion, karat handling, stone 
 
 ## Author
 
-**Basma Almuntaser** — Data Science Bootcamp project.
+**Basma Almuntaser** 
 
 ---
 
