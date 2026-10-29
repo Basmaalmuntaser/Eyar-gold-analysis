@@ -1,104 +1,167 @@
 # EYAR | عيار
 
-**Understand gold's moves, and the price of your piece. · افهم حركة الذهب، وافهم سعر قطعتك.**
+**Understand gold's moves and the price of your piece.**
 
-- The app opens in **English**; the **English / العربية** switch at the top changes everything (menus, inputs, results, charts, errors, downloads). Arabic is right-to-left. The page, the inputs and the result stay when you switch, and the intro logo is not shown again.
-- **All prices are in SAR**: gold in SAR per gram (24K unless another karat is stated), oil in SAR per barrel, holding results in SAR.
-  Conversion as in the notebook: 3.75 SAR per USD and 31.1035 g per ounce. Percentages and correlations do not change.
+EYAR is a Streamlit dashboard developed for a Data Science Bootcamp project. It explores historical gold and oil prices from January 2015 to October 2026 and connects the analysis with a practical gold jewelry price calculator for Saudi Arabia.
 
-تطبيق Streamlit عربي مبني على مشروع تحليل بيانات الذهب والنفط (2015 إلى أكتوبر 2026) في معسكر علم البيانات.
-يربط التحليل التاريخي بحاسبة عملية لسعر قطعة الذهب في السعودية.
+The interface defaults to English and includes an Arabic language option. Monetary results are displayed in Saudi riyals (SAR), with units shown where relevant.
 
-## الصفحات
+## Live App
 
-| الصفحة | ماذا فيها |
+[Open EYAR](https://eyar-gold-analysis-efednvdrnbhyg3sdwdge5h.streamlit.app/)
+
+[GitHub Repository](https://github.com/Basmaalmuntaser/Eyar-gold-analysis)
+
+## App Pages
+
+| Page | Features |
 |---|---|
-| **اكتشف الذهب** | بطاقات رئيسية، رحلة السعر، أداء السنوات، الذهب والنفط (Scatter وHeatmap)، الأحداث العالمية، المخاطر (Drawdown، التوزيع، Boxplot، الأيام الصاعدة والهابطة)، معاينة البيانات والإحصائيات. الفلاتر في الشريط الجانبي. |
-| **جرّب الاحتفاظ** | تجربة شراء في تاريخ معين لمدة سنة أو 3 أو 5 سنوات تقريبًا (252 جلسة للسنة)، ومقارنة عامة لمدد الاحتفاظ. |
-| **احسب قطعتك** | العيار والوزن ثم «احسب السعر التقديري»: قيمة المعدن والمصنعية والضريبة، الأحجار، مقارنة عرض محل، «ميزانيتي كم تجيب؟»، وتنزيل ملخص الحساب. |
-| **عن البيانات** | القصة، المصادر، الأعمدة والوحدات، خطوات التنظيف، التعريفات، حدود الدراسة، معاينة وتنزيل. |
+| **Discover gold** | Key metrics, historical prices, annual performance, gold and oil comparisons, scatter plots, correlation heatmaps, global events, drawdowns, daily return distributions, boxplots, up/down day counts, data previews, and summary statistics. |
+| **Try holding** | Simulate a historical purchase and compare approximately 1-, 3-, and 5-year holding periods using 252 trading sessions per year. |
+| **Price your piece** | Estimate a gold piece's value using karat, weight, and available shop survey ranges. Includes optional stone details, tax assumptions, shop quote comparisons, budget estimates, and calculation downloads. |
+| **About the data** | Project background, sources, columns and units, cleaning methods, definitions, limitations, and data access. |
 
-متطلبات المشروع في الشريط الجانبي: وصف الداتا، المصادر، الفترة، Dropdown (نوع العرض)، Slider (الفترة)، Multiselect (الأصول)، وزر إعادة تعيين الفلاتر.
+The sidebar provides a dataset description, sources, study period, display options, date filters, asset selection, and a reset option.
 
-## التشغيل على جهازك
+## Run Locally
+
+Open a terminal in the project directory containing `app.py` and `requirements.txt`, then run:
 
 ```bash
-pip install -r requirements.txt
-streamlit run app.py
+python -m pip install -r requirements.txt
+python -m streamlit run app.py
 ```
 
-## النشر على Streamlit Community Cloud
+Open the local URL displayed in the terminal. Keep the terminal running while using the app.
 
-1. ارفعي مجلد المشروع كاملًا إلى مستودع على GitHub (مع مجلدات `data` و`utils` و`views` و`assets` و`.streamlit`).
-2. ادخلي [share.streamlit.io](https://share.streamlit.io) بحساب GitHub.
-3. اضغطي **Create app**، واختاري المستودع والفرع، واكتبي `app.py` كملف رئيسي.
-4. من **Advanced settings** اختاري Python 3.12، ثم **Deploy**.
+## Deploy on Streamlit Community Cloud
 
-التطبيق لا يحتاج أي مفتاح API أو اتصال خارجي ليعمل (الخط يُحمّل من Google Fonts، وإن تعذر يُستخدم خط بديل).
+1. Upload the project files to a GitHub repository, preserving the folder structure.
+2. Include `app.py`, `requirements.txt`, `data/`, `utils/`, `views/`, `assets/`, and `.streamlit/config.toml`.
+3. Sign in at [share.streamlit.io](https://share.streamlit.io) with your GitHub account.
+4. Select **Create app**, then choose the repository and branch.
+5. Set the main file path to `app.py`.
+6. Select a Python version compatible with the dependencies. The original project instructions recommend Python 3.12.
+7. Select **Deploy**.
 
-## بنية المشروع
+The historical analysis does not require a market-data API key. Google Fonts requires an internet connection; a fallback font is used if it cannot load.
 
+## Project Structure
+
+| Path | Purpose |
+|---|---|
+| `app.py` | Entry point, page configuration, navigation, and shared sidebar. |
+| `views/` | The four app pages. |
+| `utils/settings.py` | Shared assumptions and settings, including exchange rate, tax settings, trading sessions, colors, and sources. |
+| `utils/data.py` | Data loading and derived columns, including returns, drawdown, and SAR prices. |
+| `utils/analysis.py` | Analysis calculations shared across pages. |
+| `utils/calc.py` | Calculator logic. |
+| `utils/charts.py` | Plotly visualizations. |
+| `utils/ui.py` | Styling, opening animation, number formatting, and shared interface helpers. |
+| `data/gold_oil_clean.csv` | Cleaned historical dataset exported from the notebook. |
+| `data/events.csv` | Selected global events and dates. |
+| `data/shop_survey.csv` | Shop survey data for making charges and margins in the updated project. |
+| `tests/` | Calculation tests. |
+| `.streamlit/config.toml` | Theme configuration. |
+
+## Data Sources
+
+- **Gold:** [Yahoo Finance — Gold Futures (GC=F)](https://finance.yahoo.com/quote/GC%3DF/history/).
+- **Oil:** [FRED — WTI Crude Oil Spot Prices (DCOILWTICO)](https://fred.stlouisfed.org/series/DCOILWTICO).
+- **Local pricing:** A field survey of six gold shops in Makkah and Riyadh, collected on October 29, 2026.
+
+The historical dataset contains 2,971 gold trading-day observations from January 2, 2015 to October 26, 2026. It is a fixed historical snapshot and does not update automatically.
+
+Gold is quoted using a futures price series, while oil uses a spot price series. Their units differ and are labeled in the dashboard.
+
+## Gold Price Conversion
+
+The default conversion assumptions are:
+
+- Exchange rate: **3.75 SAR per USD**.
+- Troy ounce: **31.1035 grams**.
+
+```text
+24K gold price in SAR per gram = gold price in USD per ounce × 3.75 / 31.1035
+Price for selected karat = 24K price per gram × karat / 24
 ```
-app.py                     نقطة البداية: الإعدادات، الافتتاحية، التنقل، الشريط الجانبي
-views/                     الصفحات الأربع
-utils/settings.py          كل الافتراضات في مكان واحد (سعر الصرف، الضريبة، 252 جلسة، الألوان، المصادر)
-utils/data.py              تحميل البيانات وحساب العوائد وDrawdown وأسعار الجرام
-utils/analysis.py          حسابات التحليل المشتركة بين الصفحات
-utils/calc.py              حسابات الحاسبة (بدون Streamlit، ومختبرة)
-utils/charts.py            رسوم Plotly
-utils/ui.py                التنسيق، الافتتاحية، تنسيق الأرقام، التخزين المؤقت
-data/gold_oil_clean.csv    البيانات المنظفة من النوتبوك (لا تُعدّل)
-data/events.csv            الأحداث العالمية المدروسة
-data/shop_survey.csv       مسح المحلات (29 أكتوبر 2026)
-utils/i18n.py              تبديل اللغة (English / العربية)
-tests/                     اختبارات الحسابات
-.streamlit/config.toml     الألوان والخط
-```
 
-## بيانات المحلات (Shop survey)
+A directly entered gram price for the selected karat must not be adjusted for karat a second time. Converted historical futures prices are reference estimates, not live jewelry shop quotes.
 
-الملف: `data/shop_survey.csv`. جمعتها صاحبة المشروع يوم **29 أكتوبر 2026** من **6 محلات** (ريماس، لاڤين، بريق إيفاء، لامير، البخاري، الريس) في مكة والرياض.
+The reference price and exchange rate can be adjusted through the calculator's advanced options where available. The original default exchange-rate setting is `DEFAULT_USD_TO_SAR` in `utils/settings.py`.
 
-- كل الأسعار **قبل الضريبة**، ولكل جرام، عدا الربح لكل قطعة في بريق إيفاء ولامير (20 إلى 30 ريال للقطعة، يضاف مرة واحدة).
-- **البناجر عيار 21:** ريماس 6، والبقية 20 ريال للجرام (المصنعية والربح معًا). البخاري لا يبيع عيار 21.
-- **المشغولات الأخرى:** العيار غير محدد في المسح، فهي «تقدير عام» موسوم بوضوح في التطبيق، وليست تسعيرة مؤكدة لأي عيار.
-- تسعيرة بناجر 21 لا تُطبّق على 18 أو 22 أو 24 (التطبيق يعرض قيمة الذهب فقط).
-- في «نطاق العينة» يُحسب كل محل لوحده ثم يؤخذ أقل وأعلى إجمالي، فلا يُخلط حد من محل مع ربح من محل آخر.
-- عينة صغيرة (6 محلات) وليست مسحًا شاملًا للسوق، ولا تقيّم المحلات.
+## Shop Survey
 
-أعمدة الملف: `shop_ar, shop_en, city_ar, city_en, category (bangles/other), karat (فارغ = غير محدد), available (yes/no), fee_min_per_g, fee_max_per_g, profit_included (yes/no), fixed_profit_min, fixed_profit_max (ريال للقطعة), collected_on, notes`.
-لإضافة محل أو تعديل سعر: عدّلي السطر في الملف، والتطبيق يقرأه تلقائيًا.
+All amounts below were collected on **October 29, 2026**, exclude VAT, and are in SAR. Per-piece margins are explicitly distinguished from per-gram charges.
 
-## أين أعدّل السعر المرجعي وسعر الصرف؟
+| Shop | City | 21K bangles: making charge and margin per gram | Other jewelry |
+|---|---|---:|---|
+| ريماس | Makkah | 6 | Making charge and margin combined: 25–60 per gram. |
+| لاڤين | Riyadh | 20 | Making charge and margin combined: 25–60 per gram. |
+| بريق إيفاء | Riyadh | 20 | Making charge: 20–50 per gram, plus a margin of 20–30 per piece. |
+| لامير | Makkah | 20 | Making charge: 20–50 per gram, plus a margin of 20–30 per piece. |
+| البخاري | Makkah | Not available | Making charge and margin combined: 80–160 per gram. The shop does not offer 21K gold, according to the survey. |
+| الريس | Makkah | 20 | Making charge and margin combined: 50–150 per gram. |
 
-- **للمستخدم:** في «احسب قطعتك» ← «تفاصيل اختيارية»: سعر أونصة مرجعي، أو سعر جرام للعيار المختار (لا يُطبّق عليه معامل العيار مرة ثانية)، وسعر الصرف.
-- **الافتراضي:** `DEFAULT_USD_TO_SAR = 3.75` في `utils/settings.py`. السعر الافتراضي هو آخر إغلاق في ملف البيانات.
+The specific karats covered by the other-jewelry ranges were not recorded. These ranges must not be presented as verified quotes for every karat. The 21K bangle charges must not be automatically applied to other karats.
 
-## الضريبة (الافتراض المستخدم)
+The sample represents the shops surveyed, not the entire Saudi market. Its observed maximum is not a legal price ceiling. Update the survey data file when new observations are collected, preserving the existing schema and distinguishing per-gram charges from per-piece margins.
 
-- 15% على المشغولات والمجوهرات (الذهب بنقاء أقل من 99%) عند البيع من بائع مسجل، تُحسب مرة واحدة على المجموع (المعدن + المصنعية + الأحجار المعروفة).
-- نسبة الصفر للذهب الاستثماري: سبيكة أو عملة بنقاء 99% فأكثر قابلة للتداول في سوق السبائك. لا تُطبّق تلقائيًا على عيار 24، بل يختارها المستخدم.
-- المصدر: [Saudi Gazette نقلًا عن هيئة الزكاة والضريبة والجمارك](https://saudigazette.com.sa/article/623255/SAUDI-ARABIA/ZATCA-VAT-applicable-to-gold-if-its-purity-level-is-below-99). يُنصح بالتأكد من [موقع الهيئة](https://zatca.gov.sa/) قبل الاعتماد النهائي.
+## Calculator Method
 
-## ملاحظات منهجية
+1. Calculate the net gold weight, subtracting stone weight only if it is included in the entered total weight.
+2. Multiply net gold weight by the reference gram price for the selected karat.
+3. Add the applicable making charge and shop margin without double-counting amounts already included.
+4. Include a known stone value if supplied.
+5. Apply the appropriate VAT treatment once.
 
-- العوائد تُحسب على كامل البيانات قبل أي فلتر، حتى لا تتغير قيمة العائد عند تغيير الفترة.
-- عائد النفط يُستبعد عندما يكون السعر الحالي أو السابق غير موجب (20 و21 أبريل 2020)؛ النتيجة مطابقة لقاعدة النوتبوك `< -100`.
-- أيام النفط الناقصة عُوّضت في النوتبوك بآخر سعر معروف، وعلاماتها غير محفوظة في الملف، فلا يدّعي التطبيق معرفتها.
-- العائد السنوي من أول إغلاق إلى آخر إغلاق داخل السنة (طريقة النوتبوك).
-- الذهب سعر عقود آجلة (GC=F) والنفط سعر فوري (WTI).
+For a selected shop, calculate its minimum and maximum totals using that shop's own fee structure. For a survey-wide range, compare the completed totals for eligible shops rather than combining fees from different shops.
 
-## الاختبارات
+If stone value is unknown, the estimate excludes that value. An implied addition calculated from a shop quote is not necessarily the shop's profit: it may include manufacturing and other costs.
+
+### VAT Assumptions
+
+The project uses the Saudi standard VAT rate of 15% where applicable. Qualifying investment gold is subject to separate zero-rating conditions; selecting 24K alone does not establish eligibility. Tax treatment depends on the transaction and the relevant conditions.
+
+Check the current rules through the [Zakat, Tax and Customs Authority](https://zatca.gov.sa/). Survey fees exclude VAT, and an entered VAT-inclusive amount must not be taxed again.
+
+## Methodology
+
+- Daily returns are calculated on the full chronological dataset before display filters are applied.
+- Oil returns are excluded when the current or previous price is non-positive. This addresses April 20 and 21, 2020 in the dataset.
+- Missing oil prices were forward-filled in the notebook. The cleaned CSV does not retain flags identifying the filled observations.
+- Annual performance follows the notebook's method: change from the first to the last closing price within each year. This differs from a previous-year-end calculation.
+- The final year is incomplete and must be labeled accordingly.
+- Drawdown measures the percentage decline from a running peak. Its reference period must be clear when filters are used.
+- Approximately 1, 3, and 5 years are represented by 252, 756, and 1,260 trading sessions.
+- Holding-period results include only purchase dates with a complete future window. These windows overlap and are not independent trials.
+- The percentage of profitable cases is the share of historical cases with positive price returns, not the return earned or a guaranteed future probability.
+- Event windows use trading sessions. Price movements around an event do not establish causation.
+- IQR boundaries identify statistical outliers; they are not guaranteed limits for future daily moves.
+
+## Limitations
+
+- The study covers 2015–October 2026, including a strong period for gold. Future outcomes may differ.
+- Historical futures price changes do not reproduce the full return from trading futures, including contract rolls and transaction costs.
+- Jewelry purchases also involve making charges, margins, taxes, stones, and potential resale deductions.
+- Forward-filled oil prices may affect daily returns and correlation.
+- Only three global events are examined, without isolating other simultaneous influences.
+- The shop survey is a small, dated sample with incomplete karat coverage for other jewelry.
+
+## Tests
+
+Run the available tests from the project directory:
 
 ```bash
 python -m unittest discover tests -v
 ```
 
-28 اختبارًا بأمثلة تُحسب يدويًا، منها أمثلة التحقق (سعر الجرام 400 ريال، 10 جرام، ضريبة 15%):
-بناجر ريماس 4,669 ريال، بناجر لاڤين 4,830 ريال، باقي المشغولات في لامير 4,853 إلى 5,209.50 ريال.
-وتشمل أيضًا: البخاري غير متاح لبناجر 21، عدم تعميم بناجر 21 على عيارات أخرى، حساب كل محل لوحده، فلتر المدينة،
-الضريبة مرة واحدة، عيار 24 ليس إعفاءً تلقائيًا، خصم الأحجار مرة واحدة، مقارنة العرض، نطاق الوزن من الميزانية مع الربح الثابت،
-العوائد وDrawdown ومدد الاحتفاظ والأحداث، ومطابقة قواعد النوتبوك على البيانات الحقيقية.
+The original README describes tests for price conversion, karat handling, stone deductions, tax calculations, making charges, margins, quote comparisons, budget calculations, oil returns, drawdown, holding periods, annual performance, and incomplete event windows. Run the tests on the current code to confirm their status.
+
+## Author
+
+**Basma Almuntaser** — Data Science Bootcamp project.
 
 ---
-مشروع تعليمي ضمن معسكر علم البيانات. ليس نصيحة مالية.
+
+Educational project. Historical results and calculator estimates are not financial advice or guaranteed purchase prices.
