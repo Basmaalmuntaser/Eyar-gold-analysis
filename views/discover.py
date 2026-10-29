@@ -55,8 +55,8 @@ st.markdown(
     f"""<div class="ey-hero">
     <div class="ey-kicker">{L('EYAR | Discover gold', 'عيار | اكتشف الذهب')}</div>
     <h1>{L('Does gold always go up?', 'هل الذهب دائمًا يرتفع؟')}</h1>
-    <div class="ey-lead">{L("The idea started with a question to my grandmother about how gold relates to oil and world events. Here I tested that idea with historical data.",
-                            "بدأت الفكرة بسؤال لجدتي عن علاقة الذهب بالنفط والأحداث العالمية. هنا اختبرت هذه الفكرة باستخدام بيانات تاريخية.")}</div>
+    <div class="ey-lead">{L("The idea began with a question to my grandmother: why do gold prices rise and fall? She explained that gold's movements are linked to oil and global events. This inspired me to test the idea using historical gold and oil data from 2015 to October 2026.",
+                            "بدأت الفكرة بسؤال لجدتي: لماذا يرتفع الذهب وينخفض؟ فأجابت بأن لحركته علاقة بالنفط والأحداث العالمية. ومن هنا، اختبرت هذه الفكرة باستخدام بيانات تاريخية للذهب والنفط من 2015 إلى أكتوبر 2026.")}</div>
     <div class="ey-meta">{L('Latest data', 'آخر بيانات متاحة')}: {ui.date_ar(dmax)} · {L('historical data, not live prices', 'بيانات تاريخية وليست أسعارًا مباشرة')}</div>
     </div>""",
     unsafe_allow_html=True,
