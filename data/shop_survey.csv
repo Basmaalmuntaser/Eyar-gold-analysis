@@ -1,0 +1,13 @@
+shop_ar,shop_en,city_ar,city_en,category,karat,available,fee_min_per_g,fee_max_per_g,profit_included,fixed_profit_min,fixed_profit_max,collected_on,notes
+ريماس,Remas,مكة,Makkah,bangles,21,yes,6,6,yes,,,2026-10-29,
+لاڤين,Lavin,الرياض,Riyadh,bangles,21,yes,20,20,yes,,,2026-10-29,
+بريق إيفاء,Bareeq Eifa,الرياض,Riyadh,bangles,21,yes,20,20,yes,,,2026-10-29,
+لامير,Lamir,مكة,Makkah,bangles,21,yes,20,20,yes,,,2026-10-29,
+البخاري,Al-Bukhari,مكة,Makkah,bangles,21,no,,,,,,2026-10-29,does not sell 21K
+الريس,Al-Rayes,مكة,Makkah,bangles,21,yes,20,20,yes,,,2026-10-29,
+ريماس,Remas,مكة,Makkah,other,,yes,25,60,yes,,,2026-10-29,karat not specified in survey
+لاڤين,Lavin,الرياض,Riyadh,other,,yes,25,60,yes,,,2026-10-29,karat not specified in survey
+بريق إيفاء,Bareeq Eifa,الرياض,Riyadh,other,,yes,20,50,no,20,30,2026-10-29,karat not specified in survey; profit is per piece
+لامير,Lamir,مكة,Makkah,other,,yes,20,50,no,20,30,2026-10-29,karat not specified in survey; profit is per piece
+البخاري,Al-Bukhari,مكة,Makkah,other,,yes,80,160,yes,,,2026-10-29,karat not specified in survey
+الريس,Al-Rayes,مكة,Makkah,other,,yes,50,150,yes,,,2026-10-29,karat not specified in survey
