@@ -113,6 +113,23 @@ def date_ar(d) -> str:
     return f"{d.day} {AR_MONTHS[d.month - 1]} {d.year}" if is_ar() else f"{d.day} {EN_MONTHS[d.month - 1]} {d.year}"
 
 
+EN_MONTHS_FULL = ["January", "February", "March", "April", "May", "June", "July", "August",
+                  "September", "October", "November", "December"]
+
+
+def date_full(d) -> str:
+    """Date with the full month name in the current language, e.g. 2 January 2015 / 2 يناير 2015."""
+    d = pd.Timestamp(d)
+    return f"{d.day} {AR_MONTHS[d.month - 1]} {d.year}" if is_ar() else f"{d.day} {EN_MONTHS_FULL[d.month - 1]} {d.year}"
+
+
+def coverage(df: pd.DataFrame) -> dict:
+    """Historical data coverage, taken from the analysis data itself."""
+    a, b = df["Date"].min(), df["Date"].max()
+    years = f"{a.year}–{b.year}"
+    return {"years": years, "range": L(f"{date_full(a)} – {date_full(b)}", f"من {date_full(a)} إلى {date_full(b)}")}
+
+
 def month_ar(d) -> str:
     d = pd.Timestamp(d)
     return f"{AR_MONTHS[d.month - 1]} {d.year}" if is_ar() else f"{EN_MONTHS[d.month - 1]} {d.year}"
@@ -431,9 +448,10 @@ def sidebar_info(df: pd.DataFrame):
             f"**{L('Sources', 'المصادر')}:** [{settings.SOURCES['gold'][0]}]({settings.SOURCES['gold'][1]}), "
             f"[{settings.SOURCES['oil'][0]}]({settings.SOURCES['oil'][1]})"
         )
+        cov = coverage(df)
         st.markdown(L(
-            f"**Period:** {date_ar(df['Date'].min())} to {date_ar(df['Date'].max())} ({num(len(df))} trading days). "
-            "Historical data, frozen; it does not update automatically.",
-            f"**الفترة:** من {date_ar(df['Date'].min())} إلى {date_ar(df['Date'].max())} "
-            f"({num(len(df))} يوم تداول). بيانات تاريخية مجمدة، لا تتحدث تلقائيًا.",
+            f"**Historical data coverage:** {cov['range']} ({num(len(df))} trading days). "
+            "The analysis uses this historical period; the calculator uses the latest price available from the price provider.",
+            f"**نطاق البيانات التاريخية:** {cov['range']} ({num(len(df))} يوم تداول). "
+            "يستخدم التحليل هذه الفترة التاريخية، وتستخدم الحاسبة أحدث سعر متاح من مزود الأسعار.",
         ))

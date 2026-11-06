@@ -10,6 +10,14 @@ The app opens in English for a first visit and has an **English / العربية
 
 [Open EYAR](https://eyar-gold-analysis-efednvdrnbhyg3sdwdge5h.streamlit.app/) · [GitHub Repository](https://github.com/Basmaalmuntaser/Eyar-gold-analysis)
 
+## Share Page
+
+A small static page with the EYAR logo and a button to open the app lives in `docs/` (`index.html`, `og-image.png`, `icon.png`). Once GitHub Pages is turned on for the `docs` folder, its address is:
+
+https://basmaalmuntaser.github.io/Eyar-gold-analysis/
+
+Sharing **this** address shows the EYAR preview image (Open Graph and Twitter Card tags). The preview of the original Streamlit address does not change. Messaging apps may keep an older preview for a while.
+
 ## App Pages
 
 | Page | What it does |
@@ -23,7 +31,7 @@ Sidebar (Discover gold): dataset description, sources and period; **View type** 
 
 ## Four different things in this app
 
-1. **Historical study results** (Discover gold and the notebook) are fixed. They use the frozen dataset up to 26 October 2026 and do not change.
+1. **Historical study results** (Discover gold and the notebook) use the historical data coverage, 2 January 2015 – 26 October 2026. They do not change when the calculator price changes.
 2. **Calculator price**: a current spot reference price (XAU/USD) fetched when the page is used.
 3. **Estimated add-ons**: making charge and shop margin together, set by the project owner as app assumptions.
 4. **Try holding**: the value of gold bought on a past date, after whole calendar years (historical data) or until today (current reference price).
@@ -126,7 +134,7 @@ The original survey of six shops in Makkah and Riyadh, collected on **29 October
 ## Historical Data and Methodology
 
 - **Gold:** [Yahoo Finance — Gold Futures (GC=F)](https://finance.yahoo.com/quote/GC%3DF/history/). **Oil:** [FRED — WTI Crude Oil Spot Price (DCOILWTICO)](https://fred.stlouisfed.org/series/DCOILWTICO).
-- 2,971 gold trading days from 2 January 2015 to 26 October 2026; a fixed snapshot that does not update automatically.
+- **Historical data coverage:** 2 January 2015 – 26 October 2026 (2,971 gold trading days). The analysis uses this historical period; the calculator uses the latest price available from the price provider.
 - Daily returns are calculated on the full data before any filter. Oil returns are excluded when the current or previous price is not positive (20–21 April 2020).
 - Missing oil prices were forward-filled in the notebook; the cleaned CSV does not flag the filled days.
 - Yearly return follows the notebook: first close to last close inside each year. The last year is partial.

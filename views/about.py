@@ -16,12 +16,13 @@ st.markdown(
     unsafe_allow_html=True,
 )
 
+cov = ui.coverage(df)
 ui.cards([
-    {"label": L("Actual period", "الفترة الفعلية"), "value": f"{df['Date'].min().year} – {df['Date'].max().year}",
-     "desc": f"{ui.date_ar(df['Date'].min())} – {ui.date_ar(df['Date'].max())}"},
+    {"label": L("Historical Data Coverage", "نطاق البيانات التاريخية"), "value": cov["years"], "desc": cov["range"]},
     {"label": L("Rows", "عدد الصفوف"), "value": ui.num(len(df)), "desc": L("each row is a gold trading day", "كل صف يوم تداول للذهب")},
-    {"label": L("Updates", "تحديث البيانات"), "value": L("Frozen", "مجمدة"), "desc": L("historical data, does not update automatically", "بيانات تاريخية لا تتحدث تلقائيًا")},
-], cols=3)
+], cols=2)
+ui.note(L("The analysis uses this historical period. The calculator uses the latest price available from the price provider.",
+          "يستخدم التحليل هذه الفترة التاريخية، وتستخدم الحاسبة أحدث سعر متاح من مزود الأسعار."))
 
 st.subheader(L("Sources", "المصادر"))
 st.markdown(L(
@@ -92,13 +93,13 @@ st.markdown(L(
 
 st.subheader(L("Four different things in this app", "أربعة أشياء مختلفة في التطبيق"))
 st.markdown(L(
-    "1. **Historical study results** (Discover gold, and the analysis in the notebook): fixed, built on the frozen data up to 26 Oct 2026. They do not change.\n"
+    "1. **Historical study results** (Discover gold, and the analysis in the notebook): built on the historical data from 2 January 2015 to 26 October 2026. They do not change when the calculator price changes.\n"
     "2. **Calculator price:** a current spot reference price (XAU/USD) fetched when you use the page, kept for 5 minutes, shown with its source and price time.\n"
     "3. **Estimated add-ons:** making charge and shop margin together, set by the project owner as app assumptions: bangles 10–20 SAR/g, other pieces 20–45 SAR/g, "
     "investment bars up to 22 SAR/g and lower for heavier bars. They are not official limits and not the shop survey.\n"
     "4. **Try holding:** the value of gold bought on a past date, after whole calendar years (historical data) or until today (current price). "
     "This uses calendar years, unlike the notebook's 252 trading sessions per year.",
-    "1. **نتائج الدراسة التاريخية** (اكتشف الذهب، وتحليل النوتبوك): ثابتة ومبنية على البيانات المجمدة حتى 26 أكتوبر 2026، ولا تتغير.\n"
+    "1. **نتائج الدراسة التاريخية** (اكتشف الذهب، وتحليل النوتبوك): مبنية على البيانات التاريخية من 2 يناير 2015 إلى 26 أكتوبر 2026، ولا تتغير بتغير سعر الحاسبة.\n"
     "2. **سعر الحاسبة:** سعر مرجعي فوري حالي (XAU/USD) يُجلب عند استخدام الصفحة، ويُحفظ 5 دقائق، ويظهر مع مصدره ووقت التسعيرة.\n"
     "3. **الإضافات التقديرية:** المصنعية وهامش المحل معًا، حددتها صاحبة المشروع كافتراضات للتطبيق: البناجر 10–20 ريال/جرام، المشغولات الأخرى 20–45 ريال/جرام، "
     "والسبائك الاستثمارية حتى 22 ريال/جرام وتقل للأوزان الأعلى. ليست حدودًا رسمية وليست مسح المحلات.\n"
