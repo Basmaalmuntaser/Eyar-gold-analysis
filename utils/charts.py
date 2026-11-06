@@ -41,9 +41,12 @@ def _hover_dates(dates: pd.Series) -> list[str]:
 
 
 # ---------------------------------------------------------------------------
-def journey(d: pd.DataFrame, view: str, assets: list[str]) -> go.Figure:
-    """Gold (and optionally oil) path in SAR. 'price' -> separate axes; 'index' -> both start at 100."""
+def journey(d: pd.DataFrame, view: str, assets: list[str], ma: int = 0) -> go.Figure:
+    """Gold (and optionally oil) path in SAR. 'price' -> separate axes; 'index' -> both start at 100.
+    ma > 0 adds a moving average of the gold line (column Gold_MA, computed on the full history)."""
     G, O = "Gold_SAR_g", "Oil_SAR_bbl"
+    has_ma = ma > 0 and "Gold_MA" in d and d["Gold_MA"].notna().any()
+    ma_name = L(f"Gold, {ma}-day average", f"الذهب، متوسط {ma} يوم")
     dates = _hover_dates(d["Date"])
     show_gold, show_oil = "gold" in assets, "oil" in assets
     if view == "index":
@@ -52,6 +55,9 @@ def journey(d: pd.DataFrame, view: str, assets: list[str]) -> go.Figure:
             g = d[G] / d[G].iloc[0] * 100
             fig.add_trace(go.Scatter(x=d["Date"], y=g, name=L("Gold", "الذهب"), line=dict(color=C["gold"], width=2.4),
                                      customdata=dates, hovertemplate="%{customdata}<br>" + L("Gold", "الذهب") + ": %{y:.1f}<extra></extra>"))
+            if has_ma:
+                fig.add_trace(go.Scatter(x=d["Date"], y=d["Gold_MA"] / d[G].iloc[0] * 100, name=ma_name,
+                                         line=dict(color=C["text"], width=1.6, dash="dash"), hoverinfo="skip"))
         if show_oil:
             o = d[O] / d[O].iloc[0] * 100
             fig.add_trace(go.Scatter(x=d["Date"], y=o, name=L("Oil", "النفط"), line=dict(color=C["oil"], width=1.8, dash="dot"),
@@ -79,11 +85,14 @@ def journey(d: pd.DataFrame, view: str, assets: list[str]) -> go.Figure:
                                  text=[L("Peak ", "القمة ") + f"{d.loc[i, G]:,.0f}"], textposition="top left",
                                  textfont=dict(color=C["gold"]), showlegend=False,
                                  hovertemplate=L("Peak: ", "القمة: ") + f"{dates[i]}<br>%{{y:,.1f}}<extra></extra>"), row=r, col=1)
+        if has_ma:
+            fig.add_trace(go.Scatter(x=d["Date"], y=d["Gold_MA"], name=ma_name, line=dict(color=C["text"], width=1.6, dash="dash"),
+                                     hovertemplate=ma_name + ": %{y:,.1f}<extra></extra>"), row=r, col=1)
         r += 1
     if show_oil:
         fig.add_trace(go.Scatter(x=d["Date"], y=d[O], name=L("Oil", "النفط"), line=dict(color=C["oil"], width=1.6),
                                  customdata=dates, hovertemplate="%{customdata}<br>%{y:,.1f} " + L("SAR/barrel", "ريال/برميل") + "<extra></extra>"), row=r, col=1)
-    fig.update_layout(showlegend=False)
+    fig.update_layout(showlegend=has_ma)
     for a in fig.layout.annotations:
         a.update(x=1, xanchor="right", font=dict(size=13, color=C["muted"]))
     return base(fig, 460 if rows == 2 else 400)
@@ -199,9 +208,9 @@ def hold_value(path: pd.DataFrame, amount: float) -> go.Figure:
         hovertemplate="%{customdata}<br>%{y:,.0f} " + L("SAR", "ريال") + "<extra></extra>",
     ))
     fig.add_hline(y=amount, line_dash="dash", line_color="#9C9384",
-                  annotation_text=L("Amount invested", "المبلغ الأصلي"), annotation_position="bottom right")
-    fig.update_yaxes(title=L("Value (SAR)", "القيمة (ريال)"))
-    return base(fig, 380)
+                  annotation_text=L("Gold value when bought", "قيمة الذهب وقت الشراء"), annotation_position="bottom right")
+    fig.update_yaxes(title=L("Gold value (SAR)", "قيمة الذهب (ريال)"))
+    return base(fig, 280)
 
 
 def hold_by_buy_date(full: pd.DataFrame, years: int) -> go.Figure:

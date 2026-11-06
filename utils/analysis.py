@@ -193,3 +193,63 @@ def simulate_hold(full: pd.DataFrame, buy_date, years: int, amount: float) -> di
         "max_dd": float(dd.min()), "max_dd_date": path.loc[dd.idxmin(), "Date"],
         "sessions": n,
     }
+
+
+# ---------------------------------------------------------------------------
+# "Try holding" page: calendar years (this is NOT the notebook's 252-session method above)
+# ---------------------------------------------------------------------------
+MAX_HOLD_YEARS = 10
+
+
+def gram_price(usd_oz: float, karat: int, usd_to_sar: float = settings.DEFAULT_USD_TO_SAR) -> float:
+    return usd_oz * usd_to_sar / settings.OUNCE_IN_GRAMS * karat / 24
+
+
+def buy_session(full: pd.DataFrame, buy_date):
+    """First trading session on or after the chosen date (None if the date is after the data)."""
+    idx = full.index[full["Date"] >= pd.Timestamp(buy_date)]
+    return int(idx[0]) if len(idx) else None
+
+
+def available_years(full: pd.DataFrame, buy_date, max_years: int = MAX_HOLD_YEARS) -> list[int]:
+    """Whole calendar years N (1..10) whose end date is still inside the data."""
+    b = buy_session(full, buy_date)
+    if b is None:
+        return []
+    start, last = full.loc[b, "Date"], full["Date"].iloc[-1]
+    return [n for n in range(1, max_years + 1) if start + pd.DateOffset(years=n) <= last]
+
+
+def hold_value(full: pd.DataFrame, buy_date, years: int, amount: float, karat: int) -> dict:
+    """Value of the gold bought with `amount` (gold value only) after N calendar years.
+    The end price is the last trading session on or before the date N years later."""
+    b = buy_session(full, buy_date)
+    if b is None:
+        return {"ok": False}
+    start_date = full.loc[b, "Date"]
+    target = start_date + pd.DateOffset(years=years)
+    if target > full["Date"].iloc[-1]:
+        return {"ok": False}
+    e = int(full.index[full["Date"] <= target][-1])
+    g0 = gram_price(full.loc[b, "Close"], karat)
+    g1 = gram_price(full.loc[e, "Close"], karat)
+    grams = amount / g0
+    path = full.loc[b:e, ["Date", "Close"]].copy()
+    path["Value"] = grams * path["Close"].map(lambda c: gram_price(c, karat))
+    final = grams * g1
+    return {"ok": True, "start_date": start_date, "end_date": full.loc[e, "Date"], "target": target,
+            "gram_start": g0, "gram_end": g1, "grams": grams, "final": final, "gain": final - amount, "path": path}
+
+
+def hold_value_now(full: pd.DataFrame, buy_date, amount: float, karat: int, usd_oz_now: float) -> dict:
+    """Same, but valued with the current reference price (spot). The start price comes from the
+    historical futures series, so this is an approximate comparison between two references."""
+    b = buy_session(full, buy_date)
+    if b is None:
+        return {"ok": False}
+    g0 = gram_price(full.loc[b, "Close"], karat)
+    g1 = gram_price(usd_oz_now, karat)
+    grams = amount / g0
+    final = grams * g1
+    return {"ok": True, "start_date": full.loc[b, "Date"], "gram_start": g0, "gram_end": g1, "grams": grams,
+            "final": final, "gain": final - amount}

@@ -9,8 +9,8 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 
-from . import calc, data, settings
-from .i18n import L, is_ar
+from . import calc, data, live_price, settings
+from .i18n import L, is_ar, lang, set_lang
 
 C = settings.COLORS
 LRI, PDI = "⁦", "⁩"  # keep numbers left-to-right inside Arabic text
@@ -180,6 +180,7 @@ CSS = f"""
 .stApp h2, .stApp h3 {{ font-weight: 700; letter-spacing: 0; }}
 /* numbers typed in inputs stay left-to-right */
 [data-testid="stNumberInput"] input, [data-testid="stDateInput"] input {{ direction: ltr; text-align: right; }}
+[data-testid="stDateInput"] [role="group"] {{ direction: ltr; }}
 /* charts keep their own left-to-right layout */
 [data-testid="stPlotlyChart"], [data-testid="stPlotlyChart"] * {{ direction: ltr; }}
 
@@ -257,12 +258,69 @@ def inject_css():
     st.markdown(RTL_CSS if is_ar() else LTR_CSS, unsafe_allow_html=True)
 
 
+def _on_lang_switch():
+    set_lang(st.session_state.get("lang_switch"))
+
+
 def lang_toggle():
-    """English / العربية switch at the top of every page (keeps the page and inputs)."""
-    st.session_state.setdefault("lang", "en")
+    """English / العربية switch at the top of every page.
+
+    The language itself is stored in one shared value (lang_pref). The switch only shows it, and is
+    re-filled from it on every run, so moving to another page can never reset the language."""
+    st.session_state["lang_switch"] = lang()
     with st.container(horizontal=True, horizontal_alignment="left" if is_ar() else "right"):
-        st.radio("Language / اللغة", ["en", "ar"], key="lang", horizontal=True, label_visibility="collapsed",
-                 format_func={"en": "English", "ar": "العربية"}.get, width="content")
+        st.radio("Language / اللغة", ["en", "ar"], key="lang_switch", horizontal=True, label_visibility="collapsed",
+                 format_func={"en": "English", "ar": "العربية"}.get, width="content", on_change=_on_lang_switch)
+
+
+# ---------------------------------------------------------------------------
+# Current reference price (shared by the calculator and the holding page)
+# ---------------------------------------------------------------------------
+@st.cache_data(ttl=settings.PRICE_CACHE_SECONDS, show_spinner=False)
+def _quote_cached(has_key: bool):
+    key = None
+    if has_key:
+        try:
+            key = st.secrets["GOLDAPI_KEY"]
+        except Exception:
+            key = None
+    return live_price.fetch(goldapi_key=key)
+
+
+def _has_goldapi_key() -> bool:
+    try:
+        return bool(st.secrets.get("GOLDAPI_KEY"))
+    except Exception:
+        return False
+
+
+def get_quote() -> live_price.Quote:
+    q = _quote_cached(_has_goldapi_key())
+    if q.ok:
+        st.session_state["last_good_quote"] = q
+    return q
+
+
+def refresh_quote():
+    _quote_cached.clear()
+
+
+def quote_status_line(q: live_price.Quote) -> str:
+    """Source, quote time in Riyadh time, and whether it is live, delayed or the market is closed."""
+    t = live_price.riyadh(q.quote_time)
+    when = f"{date_ar(t)} {t:%H:%M}"
+    if q.status == "closed":
+        state = L("Last available price — market closed", "آخر سعر متاح — السوق مغلق")
+    elif q.status == "delayed":
+        state = L(f"Delayed by about {q.age_minutes:.0f} minutes", f"متأخر بنحو {q.age_minutes:.0f} دقيقة")
+    else:
+        state = L("Recent price", "سعر حديث")
+    return L(f"{state} · price time {ui_ltr(when)} (Riyadh time) · source: {q.provider} (spot XAU/USD)",
+             f"{state} · وقت التسعيرة {ui_ltr(when)} (بتوقيت السعودية) · المصدر: {q.provider} (سعر فوري XAU/USD)")
+
+
+def ui_ltr(s: str) -> str:
+    return ltr(s)
 
 
 SPLASH = f"""

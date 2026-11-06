@@ -15,7 +15,7 @@ CFG = {"displayModeBar": False}
 # ---------------------------------------------------------------------------
 # Sidebar filters
 # ---------------------------------------------------------------------------
-DEFAULTS = {"f_view": "price", "f_period": (dmin, dmax), "f_assets": ["gold", "oil"]}
+DEFAULTS = {"f_view": "price", "f_from": dmin, "f_to": dmax, "f_assets": ["gold", "oil"], "f_ma": 0}
 
 
 def reset_filters():
@@ -34,8 +34,17 @@ with st.sidebar:
                  key=ui.lkey("f_view", DEFAULTS["f_view"]), on_change=ui.sync, args=("f_view",),
                  help=L("Price: each asset on its own axis. Relative change: both start at 100 for easy comparison.",
                         "السعر: كل أصل على محوره الخاص. التغير النسبي: يبدأ كل أصل من 100 لتسهيل المقارنة."))
-    st.slider(L("Period", "الفترة الزمنية"), min_value=dmin, max_value=dmax, format="YYYY-MM-DD",
-              key=ui.lkey("f_period", DEFAULTS["f_period"]), on_change=ui.sync, args=("f_period",))
+    # Two clear date fields (stacked, fit on a phone). "From" cannot be after "To", and both stay inside the data.
+    from_key = ui.lkey("f_from", DEFAULTS["f_from"])
+    to_key = ui.lkey("f_to", DEFAULTS["f_to"])
+    st.date_input(L("From date", "من تاريخ"), min_value=dmin, max_value=ui.val("f_to"), format="YYYY-MM-DD",
+                  key=from_key, on_change=ui.sync, args=("f_from",))
+    st.date_input(L("To date", "إلى تاريخ"), min_value=ui.val("f_from"), max_value=dmax, format="YYYY-MM-DD",
+                  key=to_key, on_change=ui.sync, args=("f_to",))
+    st.slider(L("Moving average on the gold line (trading days, 0 = off)", "متوسط متحرك على خط الذهب (أيام تداول، 0 = بدون)"),
+              min_value=0, max_value=200, step=10, key=ui.lkey("f_ma", DEFAULTS["f_ma"]), on_change=ui.sync, args=("f_ma",),
+              help=L("Smooths the gold price line to show the trend. It is calculated on the full history, so the start of the period is not distorted.",
+                     "ينعّم خط سعر الذهب لإظهار الاتجاه. يُحسب على كامل البيانات، فلا تتأثر بداية الفترة."))
     st.multiselect(L("Assets to compare", "الأصول في المقارنة"), list(ASSET_LABELS), format_func=ASSET_LABELS.get,
                    key=ui.lkey("f_assets", DEFAULTS["f_assets"]), on_change=ui.sync, args=("f_assets",),
                    placeholder=L("Choose an asset", "اختاري أصلًا"))
@@ -44,9 +53,13 @@ with st.sidebar:
                  "الفلاتر تؤثر على هذه الصفحة. الأحداث العالمية ومدد الاحتفاظ تستخدم كامل البيانات، وهذا مكتوب بجانبها."))
 
 view = ui.val("f_view")
-start, end = ui.val("f_period")
+start, end = ui.val("f_from"), ui.val("f_to")
+if start > end:                       # cannot normally happen (the fields limit each other), but stay safe
+    start, end = end, start
 assets = ui.val("f_assets")
-d = filter_period(df, start, end)
+ma = int(ui.val("f_ma") or 0)
+df_ma = df.assign(Gold_MA=df["Gold_SAR_g"].rolling(ma, min_periods=ma).mean() if ma else float("nan"))
+d = filter_period(df_ma, start, end)
 
 # ---------------------------------------------------------------------------
 # Hero
@@ -125,7 +138,7 @@ with tabs[0]:
     if not assets:
         st.info(L("Choose gold or oil in “Assets to compare” in the sidebar.", "اختاري الذهب أو النفط من «الأصول في المقارنة» في الشريط الجانبي."))
     else:
-        st.plotly_chart(charts.journey(d, view, assets), theme=None, config=CFG, key="disc_journey")
+        st.plotly_chart(charts.journey(d, view, assets, ma), theme=None, config=CFG, key="disc_journey")
         below_peak = A.pct_change(S["peak_price"], S["end_price"])
         if abs(below_peak) < 0.05:
             peak_txt = L("The period ended at its highest close.", "وانتهت الفترة عند أعلى إغلاق فيها.")

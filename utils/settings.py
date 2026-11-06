@@ -23,6 +23,28 @@ EVENT_BEFORE = 30
 EVENT_AFTER_SHORT = 7
 EVENT_AFTER_LONG = 30
 
+# ---------------------------------------------------------------------------
+# Calculator: estimated add-ons (making charge + shop margin together), SAR per gram, BEFORE VAT.
+# These are app assumptions set by the project owner. They are not the shop survey and not official limits.
+# ---------------------------------------------------------------------------
+ADDON_RANGES = {
+    "bangles": (10.0, 20.0),
+    "other": (20.0, 45.0),
+}
+# Qualified investment bars: the add-on per gram goes down as the bar gets heavier.
+# Upper value per gram at these weights (grams -> SAR/g), joined smoothly on a log-weight scale.
+BAR_ADDON_HIGH_POINTS = [(1, 22.0), (10, 16.0), (50, 12.0), (100, 10.0), (1000, 8.0)]
+BAR_ADDON_LOW_SHARE = 0.5      # lower value = 50% of the upper value
+BAR_ADDON_CAP = 22.0           # never above this
+
+# Live reference price for the calculator
+PRICE_CACHE_SECONDS = 300      # keep a fetched quote for 5 minutes
+PRICE_DELAY_MINUTES = 15       # older than this while the market is open -> shown as delayed
+PRICE_STALE_OPEN_MINUTES = 60  # older than this while the market is open (or before the last close) -> not used
+PRICE_MAX_AGE_HOURS = 80       # older than this -> not used (covers a normal weekend close)
+PRICE_PLAUSIBLE_USD_OZ = (500.0, 20000.0)
+RIYADH_TZ = "Asia/Riyadh"
+
 # VAT (Saudi Arabia). See the "about" page and README for the sources used.
 VAT_STANDARD = 0.15            # jewelry sold by a VAT-registered seller
 VAT_INVESTMENT_GOLD = 0.0      # investment gold: purity 99% or more, tradable on the bullion market
@@ -39,6 +61,12 @@ SOURCES = {
         "https://saudigazette.com.sa/article/623255/SAUDI-ARABIA/ZATCA-VAT-applicable-to-gold-if-its-purity-level-is-below-99",
     ),
     "zatca": ("ZATCA (official website)", "https://zatca.gov.sa/"),
+    "zatca_metals": (
+        "ZATCA: Guideline for the Investment Metals Sector under VAT",
+        "https://zatca.gov.sa/en/HelpCenter/guidelines/Documents/Guideline-For-the-Investment-Metals-Sector-under-VAT-Provisions.pdf",
+    ),
+    "gold_api": ("Gold-API.com (XAU spot, USD per troy ounce)", "https://gold-api.com/"),
+    "goldapi_io": ("GoldAPI.io (XAU/USD spot)", "https://www.goldapi.io/"),
 }
 
 # Visual identity

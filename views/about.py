@@ -90,7 +90,33 @@ st.markdown(L(
     "- الارتباط يقيس العلاقة الخطية في نفس اليوم فقط.\n"
     "- التطبيق لا يتنبأ بالأسعار."))
 
-st.subheader(L("Shop survey (making charge and margin)", "مسح المحلات (المصنعية والهامش)"))
+st.subheader(L("Four different things in this app", "أربعة أشياء مختلفة في التطبيق"))
+st.markdown(L(
+    "1. **Historical study results** (Discover gold, and the analysis in the notebook): fixed, built on the frozen data up to 26 Oct 2026. They do not change.\n"
+    "2. **Calculator price:** a current spot reference price (XAU/USD) fetched when you use the page, kept for 5 minutes, shown with its source and price time.\n"
+    "3. **Estimated add-ons:** making charge and shop margin together, set by the project owner as app assumptions: bangles 10–20 SAR/g, other pieces 20–45 SAR/g, "
+    "investment bars up to 22 SAR/g and lower for heavier bars. They are not official limits and not the shop survey.\n"
+    "4. **Try holding:** the value of gold bought on a past date, after whole calendar years (historical data) or until today (current price). "
+    "This uses calendar years, unlike the notebook's 252 trading sessions per year.",
+    "1. **نتائج الدراسة التاريخية** (اكتشف الذهب، وتحليل النوتبوك): ثابتة ومبنية على البيانات المجمدة حتى 26 أكتوبر 2026، ولا تتغير.\n"
+    "2. **سعر الحاسبة:** سعر مرجعي فوري حالي (XAU/USD) يُجلب عند استخدام الصفحة، ويُحفظ 5 دقائق، ويظهر مع مصدره ووقت التسعيرة.\n"
+    "3. **الإضافات التقديرية:** المصنعية وهامش المحل معًا، حددتها صاحبة المشروع كافتراضات للتطبيق: البناجر 10–20 ريال/جرام، المشغولات الأخرى 20–45 ريال/جرام، "
+    "والسبائك الاستثمارية حتى 22 ريال/جرام وتقل للأوزان الأعلى. ليست حدودًا رسمية وليست مسح المحلات.\n"
+    "4. **جرّب الاحتفاظ:** قيمة ذهب اشتُري في تاريخ سابق بعد سنوات تقويمية كاملة (من البيانات التاريخية) أو حتى اليوم (بالسعر الحالي). "
+    "تستخدم سنوات تقويمية، بخلاف 252 جلسة تداول للسنة في النوتبوك."))
+
+st.subheader(L("VAT", "ضريبة القيمة المضافة"))
+st.markdown(L(
+    "Jewelry and gold below 99% purity: 15% VAT on the full estimated selling price, once. A qualified investment bar (99% purity or more, tradable on the "
+    "international bullion market) is zero-rated under its conditions; 24K alone is not enough. "
+    f"[ZATCA guideline for the investment metals sector]({settings.SOURCES['zatca_metals'][1]})",
+    "المشغولات والذهب بنقاء أقل من 99%: ضريبة 15% على قيمة البيع المقدرة كاملة، مرة واحدة. السبيكة الاستثمارية المؤهلة (نقاء 99% فأكثر وقابلة للتداول في سوق "
+    "السبائك العالمية) تخضع لنسبة الصفر وفق شروطها، وعيار 24 وحده لا يكفي. "
+    f"[دليل هيئة الزكاة والضريبة والجمارك لقطاع المعادن الاستثمارية]({settings.SOURCES['zatca_metals'][1]})"))
+
+st.subheader(L("Shop survey (kept as project documentation)", "مسح المحلات (محفوظ ضمن توثيق المشروع)"))
+st.caption(L("The calculator now uses the estimated add-ons above. The original survey is shown here as collected.",
+             "الحاسبة تستخدم الآن الإضافات التقديرية أعلاه. المسح الأصلي معروض هنا كما جُمع."))
 st.markdown(L(
     "Collected by the project owner on **29 October 2026** from **6 shops** in Makkah and Riyadh. All prices are **before VAT**, per gram, "
     "except the per-piece profit at two shops. Bangle prices are for **21K**; Al-Bukhari does not sell 21K. "

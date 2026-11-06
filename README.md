@@ -2,165 +2,181 @@
 
 **Understand gold's moves and the price of your piece.**
 
-EYAR is a Streamlit dashboard developed for a Data Science Bootcamp project. It explores historical gold and oil prices from January 2015 to October 2026 and connects the analysis with a practical gold jewelry price calculator for Saudi Arabia.
+EYAR is a Streamlit dashboard developed for a Data Science Bootcamp project. It explores historical gold and oil prices from January 2015 to October 2026 and connects the analysis with a simple gold price calculator for Saudi Arabia.
 
-The interface defaults to English and includes an Arabic language option. Monetary results are displayed in Saudi riyals (SAR), with units shown where relevant.
+The app opens in English for a first visit and has an **English / العربية** switch at the top. Arabic is shown right-to-left. Prices and amounts are in Saudi riyals (SAR).
 
 ## Live App
 
-[Open EYAR](https://eyar-gold-analysis-efednvdrnbhyg3sdwdge5h.streamlit.app/)
-
-[GitHub Repository](https://github.com/Basmaalmuntaser/Eyar-gold-analysis)
+[Open EYAR](https://eyar-gold-analysis-efednvdrnbhyg3sdwdge5h.streamlit.app/) · [GitHub Repository](https://github.com/Basmaalmuntaser/Eyar-gold-analysis)
 
 ## App Pages
 
-| Page | Features |
+| Page | What it does |
 |---|---|
-| **Discover gold** | Key metrics, historical prices, annual performance, gold and oil comparisons, scatter plots, correlation heatmaps, global events, drawdowns, daily return distributions, boxplots, up/down day counts, data previews, and summary statistics. |
-| **Try holding** | Simulate a historical purchase and compare approximately 1-, 3-, and 5-year holding periods using 252 trading sessions per year. |
-| **Price your piece** | Estimate a gold piece's value using karat, weight, and available shop survey ranges. Includes optional stone details, tax assumptions, shop quote comparisons, budget estimates, and calculation downloads. |
-| **About the data** | Project background, sources, columns and units, cleaning methods, definitions, limitations, and data access. |
+| **Discover gold** | Key metrics, price journey (with an optional moving average), yearly performance, gold vs oil (scatter, correlation heatmap), world events, risk (drawdown, distribution, boxplot, up/down days), data preview and summary statistics. Filters in the sidebar. |
+| **Try holding** | “If you had bought gold years ago, what would it be worth?” Buy date, gold value at purchase, karat, and a holding period of 1–10 calendar years or *until today*. |
+| **Price your piece** | Karat, net gold weight and piece type (bangles / other pieces; for 24K also a *qualified investment bar* option). Shows an estimated price range with the current reference gold price, plus “How much gold can my budget buy?”. |
+| **About the data** | Background, sources, columns and units, cleaning steps, definitions, limitations, VAT notes, the original shop survey, and downloads. |
 
-The sidebar provides a dataset description, sources, study period, display options, date filters, asset selection, and a reset option.
+Sidebar (Discover gold): dataset description, sources and period; **View type** dropdown; **From date** and **To date** fields; a **moving average** slider; an **assets** multiselect; and **Reset filters**.
+
+## Four different things in this app
+
+1. **Historical study results** (Discover gold and the notebook) are fixed. They use the frozen dataset up to 26 October 2026 and do not change.
+2. **Calculator price**: a current spot reference price (XAU/USD) fetched when the page is used.
+3. **Estimated add-ons**: making charge and shop margin together, set by the project owner as app assumptions.
+4. **Try holding**: the value of gold bought on a past date, after whole calendar years (historical data) or until today (current reference price).
+
+## Language
+
+- English is the default only for a first visit. After choosing a language, it stays the same on every page, after calculations, filter changes and downloads.
+- The choice is stored in one shared session value (`lang_pref`) and in the page address as `?lang=en` or `?lang=ar`, so it is also restored after a page refresh.
+- The intro logo appears once per session; it does not replay when the language changes.
+
+## Current Reference Price (calculator and “until today”)
+
+- **Default provider: Gold-API.com** (`GET https://api.gold-api.com/price/XAU`), no key needed. Fields used: `price` (USD per troy ounce) and `updatedAt` (time of the quote, UTC).
+- **Optional provider: GoldAPI.io** (`GET https://www.goldapi.io/api/XAU/USD`, header `x-access-token`). Used first only if a key is set in Streamlit Secrets. Fields used: `price` and `timestamp` (Unix time of the quote).
+- A fetched quote is kept for **5 minutes**. The **Refresh price** button fetches again.
+- The page shows the source and the **price time in Riyadh time** (the quote's own time, not the time we fetched it).
+- Market hours for spot gold (Sunday 18:00 to Friday 17:00 New York time, daily break 17:00–18:00): when the market is closed the price is labelled **“Last available price — market closed”**. When the market is open and the quote is 15–60 minutes old it is labelled **delayed**.
+- A price is **not used** if it is not positive, is outside 500–20,000 USD per ounce (this catches per-gram or wrong-currency values), is in the future, is more than 60 minutes old while the market is open, or is older than the last market session while it is closed.
+- If no reliable price is available, the calculator shows a clear message and **does not estimate a price**. It never falls back to the October study data. The last good price received in the session may be shown for information only.
+- Conversion: `SAR per gram for a karat = USD per ounce × 3.75 ÷ 31.1035 × karat ÷ 24`. The 3.75 SAR/USD peg is an assumption of the app.
+
+### Streamlit Secrets (optional)
+
+No secret is required. To use GoldAPI.io as the first provider:
+
+1. Create a key at [goldapi.io](https://www.goldapi.io/).
+2. In Streamlit Community Cloud open the app → **Settings** → **Secrets**.
+3. Add one line and save:
+
+   ```toml
+   GOLDAPI_KEY = "your-key-here"
+   ```
+
+Never put the key in GitHub or in the ZIP. The free GoldAPI.io plan has a small monthly request limit; with a 5-minute cache a busy app may use it up, after which the app moves to Gold-API.com.
+
+## Calculator Method
+
+Inputs: karat, **net gold weight** (without stones), and piece type. For 24K only, the user can mark the piece as a qualified investment bar; changing the karat away from 24 switches this off.
+
+```text
+lowest price  = weight × (gram price + lowest add-on per gram)  × (1 + VAT)
+highest price = weight × (gram price + highest add-on per gram) × (1 + VAT)
+```
+
+The add-on is the making charge and shop margin **together**; nothing is added on top of it. VAT is applied once.
+
+### Estimated add-ons (app assumptions)
+
+| Piece type | Add-on (SAR per gram, before VAT) |
+|---|---|
+| Bangles | 10 – 20 |
+| Other pieces | 20 – 45 |
+| Qualified investment bar | see below |
+
+These are estimates chosen by the project owner. They are not official limits or maximum prices, and add-ons can be higher depending on the design, brand and shop. For heavier pieces a buyer may be able to negotiate an add-on closer to the lower end.
+
+### Investment bar add-on policy (app assumption)
+
+There is no surveyed price list for bar weights, so the app uses a simple internal policy, set in `utils/settings.py`:
+
+- Upper add-on per gram at these weights, joined smoothly on a log-weight scale:
+
+  | Bar weight | 1 g or less | 10 g | 50 g | 100 g | 1,000 g or more |
+  |---|---|---|---|---|---|
+  | Upper add-on (SAR/g) | 22 | 16 | 12 | 10 | 8 |
+
+- Lower add-on = 50% of the upper value.
+- The upper value never goes above 22 SAR/g and never increases with weight. The joints are continuous (no jumps), and the total add-on for the bar still grows with weight.
+- Actual add-ons differ by refinery, brand and seller.
+
+### VAT
+
+- Jewelry and gold below 99% purity: **15%** on the full estimated selling price, once.
+- A **qualified investment bar** (99% purity or more and tradable on the international bullion market) is **zero-rated** under its conditions. The result then says the zero rate applies on the assumption that the conditions are met. 24K alone is not enough.
+- The estimate is for the sale of the piece as a product only; separate services may be treated differently.
+- Source: [ZATCA, Guideline for the Investment Metals Sector under VAT Provisions](https://zatca.gov.sa/en/HelpCenter/guidelines/Documents/Guideline-For-the-Investment-Metals-Sector-under-VAT-Provisions.pdf). Check current rules with [ZATCA](https://zatca.gov.sa/).
+
+### Budget: “How much gold can my budget buy?”
+
+Inputs: budget, karat, piece type (and the bar option for 24K). The fewest grams use the highest add-on; the most grams use the lowest add-on. VAT is included when it applies. Because the bar add-on depends on the weight, the weight is solved numerically. Weights are rounded **down** to 0.01 g, so the price of the returned weight never exceeds the budget.
+
+### Invoice note
+
+The page reminds the buyer not to buy without a clear invoice showing the karat, weight, price and VAT when due, and to check the seller and the karat hallmark.
+
+## Try Holding Method
+
+- Gram price when bought = historical ounce price × 3.75 ÷ 31.1035 × karat ÷ 24.
+- Grams = amount entered ÷ gram price when bought. The amount is the **gold value at purchase, without making charge and VAT**.
+- Value at the end = grams × gram price of the same karat at the end. Gain or loss = end value − amount.
+- Because the same karat is used at both ends, the % change does not depend on the karat; the karat changes the gram price and the grams bought.
+- **Calendar years**: the buy price is the first trading session on or after the chosen date. The end price is the last trading session on or before the same date N years later. Only periods whose end is inside the data are offered (1–10 years). This is different from the notebook, which uses 252 trading sessions per year; the notebook results are not changed.
+- **Until today / latest available price** uses the same current price service as the calculator. The buy price comes from the historical gold futures data and the current price from a spot service, so this is an approximate comparison between two references, not an exact investment return. If the current price is not available, no “today” value is shown.
+- The value is an estimate for the gold only, before any shop deduction, and does not include getting back the making charge or the purchase VAT.
+
+## Shop Survey (project documentation)
+
+The original survey of six shops in Makkah and Riyadh, collected on **29 October 2026** (prices before VAT), is kept unchanged in `data/shop_survey.csv` and shown on the About page. The calculator now uses the estimated add-ons above instead of the survey.
+
+## Historical Data and Methodology
+
+- **Gold:** [Yahoo Finance — Gold Futures (GC=F)](https://finance.yahoo.com/quote/GC%3DF/history/). **Oil:** [FRED — WTI Crude Oil Spot Price (DCOILWTICO)](https://fred.stlouisfed.org/series/DCOILWTICO).
+- 2,971 gold trading days from 2 January 2015 to 26 October 2026; a fixed snapshot that does not update automatically.
+- Daily returns are calculated on the full data before any filter. Oil returns are excluded when the current or previous price is not positive (20–21 April 2020).
+- Missing oil prices were forward-filled in the notebook; the cleaned CSV does not flag the filled days.
+- Yearly return follows the notebook: first close to last close inside each year. The last year is partial.
+- Drawdown on Discover gold is measured from peaks inside the selected period.
+- The moving-average slider is computed on the full history, so the start of a filtered period is not distorted.
+- Event windows use trading sessions; timing does not prove cause. IQR limits find unusual days; they are not guaranteed limits.
+- The “~1-year holds” card on Discover gold is a study result (252 sessions, full study period). The share of positive cases is not the size of a profit.
+
+## Limitations
+
+- 2015 to October 2026 was a strong period for gold; results may differ in the future.
+- Historical futures changes are not a full futures trading simulation (contract rolls, costs).
+- Real purchases also involve design, brand, shop pricing and resale deductions.
+- Forward-filled oil prices may affect daily returns and correlation. Only three world events are examined.
+- The current price providers are third-party services without a guaranteed service level.
 
 ## Run Locally
-
-Open a terminal in the project directory containing `app.py` and `requirements.txt`, then run:
 
 ```bash
 python -m pip install -r requirements.txt
 python -m streamlit run app.py
 ```
 
-Open the local URL displayed in the terminal. Keep the terminal running while using the app.
-
-## Deploy on Streamlit Community Cloud
-
-1. Upload the project files to a GitHub repository, preserving the folder structure.
-2. Include `app.py`, `requirements.txt`, `data/`, `utils/`, `views/`, `assets/`, and `.streamlit/config.toml`.
-3. Sign in at [share.streamlit.io](https://share.streamlit.io) with your GitHub account.
-4. Select **Create app**, then choose the repository and branch.
-5. Set the main file path to `app.py`.
-6. Select a Python version compatible with the dependencies. The original project instructions recommend Python 3.12.
-7. Select **Deploy**.
-
-The historical analysis does not require a market-data API key. Google Fonts requires an internet connection; a fallback font is used if it cannot load.
-
-## Project Structure
-
-| Path | Purpose |
-|---|---|
-| `app.py` | Entry point, page configuration, navigation, and shared sidebar. |
-| `views/` | The four app pages. |
-| `utils/settings.py` | Shared assumptions and settings, including exchange rate, tax settings, trading sessions, colors, and sources. |
-| `utils/data.py` | Data loading and derived columns, including returns, drawdown, and SAR prices. |
-| `utils/analysis.py` | Analysis calculations shared across pages. |
-| `utils/calc.py` | Calculator logic. |
-| `utils/charts.py` | Plotly visualizations. |
-| `utils/ui.py` | Styling, opening animation, number formatting, and shared interface helpers. |
-| `data/gold_oil_clean.csv` | Cleaned historical dataset exported from the notebook. |
-| `data/events.csv` | Selected global events and dates. |
-| `data/shop_survey.csv` | Shop survey data for making charges and margins in the updated project. |
-| `tests/` | Calculation tests. |
-| `.streamlit/config.toml` | Theme configuration. |
-
-## Data Sources
-
-- **Gold:** [Yahoo Finance — Gold Futures (GC=F)](https://finance.yahoo.com/quote/GC%3DF/history/).
-- **Oil:** [FRED — WTI Crude Oil Spot Prices (DCOILWTICO)](https://fred.stlouisfed.org/series/DCOILWTICO).
-- **Local pricing:** A field survey of six gold shops in Makkah and Riyadh, collected on October 29, 2026.
-
-The historical dataset contains 2,971 gold trading-day observations from January 2, 2015 to October 26, 2026. It is a fixed historical snapshot and does not update automatically.
-
-Gold is quoted using a futures price series, while oil uses a spot price series. Their units differ and are labeled in the dashboard.
-
-## Gold Price Conversion
-
-The default conversion assumptions are:
-
-- Exchange rate: **3.75 SAR per USD**.
-- Troy ounce: **31.1035 grams**.
-
-```text
-24K gold price in SAR per gram = gold price in USD per ounce × 3.75 / 31.1035
-Price for selected karat = 24K price per gram × karat / 24
-```
-
-A directly entered gram price for the selected karat must not be adjusted for karat a second time. Converted historical futures prices are reference estimates, not live jewelry shop quotes.
-
-The reference price and exchange rate can be adjusted through the calculator's advanced options where available. The original default exchange-rate setting is `DEFAULT_USD_TO_SAR` in `utils/settings.py`.
-
-## Shop Survey
-
-All amounts below were collected on **October 29, 2026**, exclude VAT, and are in SAR. Per-piece margins are explicitly distinguished from per-gram charges.
-
-| Shop | City | 21K bangles: making charge and margin per gram | Other jewelry |
-|---|---|---:|---|
-| ريماس | Makkah | 6 | Making charge and margin combined: 25–60 per gram. |
-| لاڤين | Riyadh | 20 | Making charge and margin combined: 25–60 per gram. |
-| بريق إيفاء | Riyadh | 20 | Making charge: 20–50 per gram, plus a margin of 20–30 per piece. |
-| لامير | Makkah | 20 | Making charge: 20–50 per gram, plus a margin of 20–30 per piece. |
-| البخاري | Makkah | Not available | Making charge and margin combined: 80–160 per gram. The shop does not offer 21K gold, according to the survey. |
-| الريس | Makkah | 20 | Making charge and margin combined: 50–150 per gram. |
-
-The specific karats covered by the other-jewelry ranges were not recorded. These ranges must not be presented as verified quotes for every karat. The 21K bangle charges must not be automatically applied to other karats.
-
-The sample represents the shops surveyed, not the entire Saudi market. Its observed maximum is not a legal price ceiling. Update the survey data file when new observations are collected, preserving the existing schema and distinguishing per-gram charges from per-piece margins.
-
-## Calculator Method
-
-1. Calculate the net gold weight, subtracting stone weight only if it is included in the entered total weight.
-2. Multiply net gold weight by the reference gram price for the selected karat.
-3. Add the applicable making charge and shop margin without double-counting amounts already included.
-4. Include a known stone value if supplied.
-5. Apply the appropriate VAT treatment once.
-
-For a selected shop, calculate its minimum and maximum totals using that shop's own fee structure. For a survey-wide range, compare the completed totals for eligible shops rather than combining fees from different shops.
-
-If stone value is unknown, the estimate excludes that value. An implied addition calculated from a shop quote is not necessarily the shop's profit: it may include manufacturing and other costs.
-
-### VAT Assumptions
-
-The project uses the Saudi standard VAT rate of 15% where applicable. Qualifying investment gold is subject to separate zero-rating conditions; selecting 24K alone does not establish eligibility. Tax treatment depends on the transaction and the relevant conditions.
-
-Check the current rules through the [Zakat, Tax and Customs Authority](https://zatca.gov.sa/). Survey fees exclude VAT, and an entered VAT-inclusive amount must not be taxed again.
-
-## Methodology
-
-- Daily returns are calculated on the full chronological dataset before display filters are applied.
-- Oil returns are excluded when the current or previous price is non-positive. This addresses April 20 and 21, 2020 in the dataset.
-- Missing oil prices were forward-filled in the notebook. The cleaned CSV does not retain flags identifying the filled observations.
-- Annual performance follows the notebook's method: change from the first to the last closing price within each year. This differs from a previous-year-end calculation.
-- The final year is incomplete and must be labeled accordingly.
-- Drawdown measures the percentage decline from a running peak. Its reference period must be clear when filters are used.
-- Approximately 1, 3, and 5 years are represented by 252, 756, and 1,260 trading sessions.
-- Holding-period results include only purchase dates with a complete future window. These windows overlap and are not independent trials.
-- The percentage of profitable cases is the share of historical cases with positive price returns, not the return earned or a guaranteed future probability.
-- Event windows use trading sessions. Price movements around an event do not establish causation.
-- IQR boundaries identify statistical outliers; they are not guaranteed limits for future daily moves.
-
-## Limitations
-
-- The study covers 2015–October 2026, including a strong period for gold. Future outcomes may differ.
-- Historical futures price changes do not reproduce the full return from trading futures, including contract rolls and transaction costs.
-- Jewelry purchases also involve making charges, margins, taxes, stones, and potential resale deductions.
-- Forward-filled oil prices may affect daily returns and correlation.
-- Only three global events are examined, without isolating other simultaneous influences.
-- The shop survey is a small, dated sample with incomplete karat coverage for other jewelry.
-
 ## Tests
-
-Run the available tests from the project directory:
 
 ```bash
 python -m unittest discover tests -v
 ```
 
-The original README describes tests for price conversion, karat handling, stone deductions, tax calculations, making charges, margins, quote comparisons, budget calculations, oil returns, drawdown, holding periods, annual performance, and incomplete event windows. Run the tests on the current code to confirm their status.
+The tests use hand-checkable examples, including: bangles 4,715–4,830 SAR and other pieces 4,830–5,117.50 SAR (gram price 400 SAR, 10 g, 15% VAT); VAT applied once; the bar option only for 24K; the bar policy (cap, never increasing, no jumps); budget results that never exceed the budget; holding example (200 → 400 SAR/g, 5,000 SAR → 25 g → 10,000 SAR); available calendar years and end dates; losses; same % for any karat; price checks (negative, per-gram or wrong-currency values, stale or future times, network failure, no fallback); market hours; and the notebook's data rules.
+
+## Project Structure
+
+| Path | Purpose |
+|---|---|
+| `app.py` | Entry point: page setup, language, intro, navigation, shared sidebar. |
+| `views/` | The four pages. |
+| `utils/settings.py` | Assumptions in one place: conversion, VAT, add-on ranges, bar policy, price-service settings, colors, sources. |
+| `utils/i18n.py` | Shared language state and the `L(english, arabic)` helper. |
+| `utils/live_price.py` | Current reference price: providers, parsing, checks, market hours. |
+| `utils/calc.py` | Calculator and budget logic, and the shop survey loader. |
+| `utils/analysis.py` | Analysis functions, including the calendar-year holding calculation. |
+| `utils/data.py`, `utils/charts.py`, `utils/ui.py` | Data loading, Plotly charts, styling and shared interface helpers. |
+| `data/` | `gold_oil_clean.csv` (study data), `events.csv`, `shop_survey.csv` (documentation). |
+| `tests/` | Calculation tests. |
+| `.streamlit/config.toml` | Theme. |
 
 ## Author
 
-**Basma Almuntaser** 
+**Basma Almuntaser**
 
 ---
 
